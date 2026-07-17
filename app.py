@@ -2,110 +2,51 @@ import streamlit as st
 import pandas as pd
 import joblib
 
-# Load Model
-model = joblib.load("svm_loan_model.pkl")
-label = joblib.load("label_encoder.pkl")
-
-st.title("Loan Approval Prediction using SVM")
-
-st.write("กรอกข้อมูลเพื่อทำนายผลการอนุมัติสินเชื่อ")
-
-# =========================
-# Input
-# =========================
-
-Age = st.number_input("Age", 18, 100, 30)
-
-Gender = st.selectbox(
-    "Gender",
-    ["Male", "Female"]
+st.set_page_config(
+    page_title="Diabetes Prediction",
+    page_icon="🩺"
 )
 
-Marital_Status = st.selectbox(
-    "Marital Status",
-    ["Single", "Married"]
-)
+st.title("🩺 Diabetes Prediction using SVM")
 
-Education = st.selectbox(
-    "Education",
-    ["Graduate", "Not Graduate"]
-)
+model = joblib.load("svm_diabetes_model.pkl")
 
-Employment_Status = st.selectbox(
-    "Employment Status",
-    [
-        "Employed",
-        "Self-Employed",
-        "Unemployed"
-    ]
+Pregnancies = st.number_input("Pregnancies", 0, 20, 1)
+Glucose = st.number_input("Glucose", 0, 300, 120)
+BloodPressure = st.number_input("Blood Pressure", 0, 200, 70)
+SkinThickness = st.number_input("Skin Thickness", 0, 100, 20)
+Insulin = st.number_input("Insulin", 0, 900, 80)
+BMI = st.number_input("BMI", 0.0, 70.0, 25.0)
+DiabetesPedigreeFunction = st.number_input(
+    "Diabetes Pedigree Function",
+    0.0,
+    3.0,
+    0.5
 )
-
-Annual_Income = st.number_input(
-    "Annual Income",
-    value=50000
-)
-
-Loan_Amount = st.number_input(
-    "Loan Amount",
-    value=20000
-)
-
-Loan_Term = st.number_input(
-    "Loan Term",
-    value=36
-)
-
-Credit_Score = st.number_input(
-    "Credit Score",
-    value=700
-)
-
-Existing_Loans = st.number_input(
-    "Existing Loans",
-    value=0
-)
-
-Debt_to_Income_Ratio = st.number_input(
-    "Debt to Income Ratio",
-    value=30.0
-)
-
-Property_Area = st.selectbox(
-    "Property Area",
-    ["Urban", "Semiurban", "Rural"]
-)
-
-# =========================
-# Predict
-# =========================
+Age = st.number_input("Age", 1, 120, 30)
 
 if st.button("Predict"):
 
     data = pd.DataFrame({
-
-        "Age":[Age],
-        "Gender":[Gender],
-        "Marital_Status":[Marital_Status],
-        "Education":[Education],
-        "Employment_Status":[Employment_Status],
-        "Annual_Income":[Annual_Income],
-        "Loan_Amount":[Loan_Amount],
-        "Loan_Term":[Loan_Term],
-        "Credit_Score":[Credit_Score],
-        "Existing_Loans":[Existing_Loans],
-        "Debt_to_Income_Ratio":[Debt_to_Income_Ratio],
-        "Property_Area":[Property_Area]
-
+        "Pregnancies":[Pregnancies],
+        "Glucose":[Glucose],
+        "BloodPressure":[BloodPressure],
+        "SkinThickness":[SkinThickness],
+        "Insulin":[Insulin],
+        "BMI":[BMI],
+        "DiabetesPedigreeFunction":[DiabetesPedigreeFunction],
+        "Age":[Age]
     })
 
-    prediction = model.predict(data)
+    prediction = model.predict(data)[0]
+    probability = model.predict_proba(data)[0]
 
-    result = label.inverse_transform(prediction)
+    if prediction == 1:
+        st.error("⚠️ Prediction : Diabetes")
+    else:
+        st.success("✅ Prediction : No Diabetes")
 
-    probability = model.predict_proba(data)
+    st.subheader("Probability")
 
-    st.success("Prediction : {}".format(result[0]))
-
-    st.write("Probability")
-
-    st.write(probability)
+    st.write(f"No Diabetes : {probability[0]*100:.2f}%")
+    st.write(f"Diabetes : {probability[1]*100:.2f}%")
